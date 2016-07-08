@@ -2,7 +2,7 @@
   "name": "@ldn0x7dc/react-native-slider",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "library/Slider.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/ldn0x7dc/react-native-slider/issues"
   },
-  "homepage": "https://github.com/ldn0x7dc/react-native-slider#readme"
+  "homepage": "https://github.com/ldn0x7dc/react-native-slider#readme",
+  "dependencies": {
+    "react-native-gesture-responder": "0.0.10"
+  }
 }
