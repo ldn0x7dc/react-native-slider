@@ -1,6 +1,6 @@
 {
   "name": "@ldn0x7dc/react-native-slider",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
   "main": "library/Slider.js",
   "scripts": {
