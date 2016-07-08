@@ -46,6 +46,8 @@ export default class Slider extends Component {
     disabled: false,
   };
 
+  sliding = false;
+
   constructor(props) {
     super(props);
 
@@ -63,6 +65,7 @@ export default class Slider extends Component {
       onMoveShouldSetResponder: (evt, gestureState) => true,
       onMoveShouldSetResponderCapture: (evt, gestureState) => true,
       onResponderGrant: ((evt, gestureState) => {
+        this.sliding = true;
         this.props.onSlidingStart && this.props.onSlidingStart(this.state.value);
       }).bind(this),
       onResponderMove: ((evt, gestureState) => {
@@ -77,9 +80,11 @@ export default class Slider extends Component {
       }).bind(this),
       onResponderTerminationRequest: (evt, gestureState) => true,
       onResponderRelease: ((evt, gestureState) => {
+        this.sliding = false;
         this.props.onSlidingComplete && this.props.onSlidingComplete(this.state.value);
       }).bind(this),
       onResponderTerminate:  ((evt, gestureState) => {
+        this.sliding = false;
         this.props.onSlidingComplete && this.props.onSlidingComplete(this.state.value);
       }).bind(this)
     });
@@ -101,18 +106,28 @@ export default class Slider extends Component {
       });
     }
 
+    this.ensureThumbSize();
+    const thumbWidth = this.props.thumbStyle.width;
+
     return (
       <View
         {...this.props}
-        style={[this.props.style, {alignItems: 'stretch', justifyContent: 'center', flexDirection: 'column'}]}
-        onLayout={this.onLayout.bind(this)}>
+        style={[this.props.style, {alignItems: 'center', flexDirection: 'row'}]}>
         <View
-          style={[this.props.trackContainerStyle, {overflow: 'hidden'}]}>
+          onLayout={this.onLayout.bind(this)}
+          style={[this.props.trackContainerStyle, {flex: 1, overflow: 'hidden', marginHorizontal: thumbWidth/2}]}>
           {trackViews}
         </View>
         {this.renderThumb()}
       </View>
     );
+  }
+
+  ensureThumbSize() {
+    if(this.props.thumbStyle && this.props.thumbStyle.width && this.props.thumbStyle.height) {
+    } else {
+      throw new Error('width and height not specified via this.props.thumbStyle');
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -122,7 +137,7 @@ export default class Slider extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if(this.state.value != prevState.value) {
+    if(this.state.value != prevState.value && this.sliding) {
       this.props.onValueChange && this.props.onValueChange(this.state.value);
     }
   }
@@ -134,15 +149,9 @@ export default class Slider extends Component {
         width, height
       });
     }
-    this.props.onLayout && this.props.onLayout(e);
   }
 
   renderThumb() {
-    if(this.props.thumbStyle && this.props.thumbStyle.width && this.props.thumbStyle.height) {
-    } else {
-      throw new Error('width and height not specified via this.props.thumbStyle');
-    }
-
     const maximumValue = this.props.maximumValue;
     const minimumValue = this.props.minimumValue;
     const w = this.state.width;
@@ -150,7 +159,6 @@ export default class Slider extends Component {
     let marginLeft = 0;
     if (maximumValue > minimumValue) {
       marginLeft = (this.state.value - minimumValue) / (maximumValue - minimumValue) * w;
-      marginLeft = Math.min(marginLeft, w - this.props.thumbStyle.width);
     }
 
     let thumb;
@@ -163,7 +171,7 @@ export default class Slider extends Component {
     } else {
       thumb = (
         <View
-          style={this.props.thumbStyle}/>
+          style={[this.props.thumbStyle, {marginLeft: marginLeft}]}/>
       );
     }
 
@@ -175,6 +183,7 @@ export default class Slider extends Component {
     return (
       <View
         {...gestureResponder}
+        collapsable={false}
         style={{
           position: 'absolute', left: 0, right: 0, top: 0, bottom: 0,
           flexDirection: 'row', alignItems: 'center'}}>
